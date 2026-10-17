@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Strom</title>
+<meta name="theme-color" content="#0f2747">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Strom">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="app.css">
+<script src="vendor/chart.umd.min.js"></script>
+</head>
+<body>
+<header>
+  <div class="title">⚡ Strom</div>
+  <div class="hright"><div class="meta" id="meta">Lade Daten …</div><button id="logout" class="logout" title="Abmelden" hidden>🔒</button></div>
+</header>
+<div id="lock" class="lock" hidden>
+  <form id="lockform" class="lockbox" autocomplete="on">
+    <div class="lockicon">⚡</div>
+    <h1>Strom</h1>
+    <p>Die Daten sind verschlüsselt. Bitte Passwort eingeben.</p>
+    <input type="text" name="username" value="strom" autocomplete="username" hidden>
+    <input id="pw" type="password" autocomplete="current-password" placeholder="Passwort" required>
+    <button id="unlock" type="submit">Entsperren</button>
+    <div id="lockerr" class="lockerr" role="alert"></div>
+    <div class="lockhint">Das Passwort wird nur einmal auf diesem Gerät abgefragt.</div>
+  </form>
+</div>
+<main>
+  <div id="error" class="error" hidden></div>
+
+  <section class="view" id="v-ueberblick">
+    <div class="notice" id="notice"></div>
+    <div class="kpis">
+      <div class="kpi" style="--c:var(--self)">
+        <div class="lbl" id="kl-net"></div>
+        <div class="val" id="k-net"></div>
+        <div class="hint">Haus + WP − Einspeisung − Ladestrom</div>
+        <div class="rows" id="kr-net"></div>
+      </div>
+      <div class="kpi" style="--c:var(--sun)">
+        <div class="lbl" id="kl-q"></div>
+        <div class="val" id="k-q"></div>
+        <div class="hint">Eigenverbrauch ÷ PV-Erzeugung</div>
+        <div class="rows" id="kr-q"></div>
+      </div>
+      <div class="kpi" style="--c:#f59e0b">
+        <div class="lbl" id="kl-pv"></div>
+        <div class="val" id="k-pv"></div>
+        <div class="hint">SolarEdge-Wechselrichter</div>
+        <div class="rows" id="kr-pv"></div>
+      </div>
+      <div class="kpi" style="--c:var(--ev)">
+        <div class="lbl" id="kl-ev"></div>
+        <div class="val" id="k-ev"></div>
+        <div class="hint" id="kh-ev"></div>
+        <div class="rows" id="kr-ev"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-verbrauch">
+    <div class="card">
+      <h2>Netzbezug: Haus vs. Wärmepumpe</h2>
+      <div class="desc">kWh pro Jahr aus dem Netz (ohne Ladestrom Model Y)</div>
+      <div class="chartbox"><canvas id="cGrid"></canvas></div>
+    </div>
+    <div class="card"><table><thead id="th-grid"></thead><tbody id="tb-grid"></tbody></table></div>
+  </section>
+
+  <section class="view" id="v-pv">
+    <div class="card">
+      <h2>PV-Erzeugung: Eigenverbrauch vs. Einspeisung</h2>
+      <div class="desc">kWh pro Jahr, gestapelt; Beschriftung = Eigenverbrauchsquote</div>
+      <div class="chartbox"><canvas id="cPV"></canvas></div>
+    </div>
+    <div class="card"><table><thead id="th-pv"></thead><tbody id="tb-pv"></tbody></table></div>
+  </section>
+
+  <section class="view" id="v-wp">
+    <div class="card">
+      <h2>Wärmepumpe: Netzbezug &amp; Kosten</h2>
+      <div class="desc">kWh pro Jahr aus dem Netz (Balken) und Kosten € (Linie)</div>
+      <div class="chartbox"><canvas id="cWP"></canvas></div>
+    </div>
+    <div class="card"><table><thead id="th-wp"></thead><tbody id="tb-wp"></tbody></table></div>
+  </section>
+
+  <section class="view" id="v-wallbox">
+    <div class="card">
+      <h2 id="h-wb">Wallbox Model Y – monatlich</h2>
+      <div class="desc" id="d-wb"></div>
+      <div class="chartbox"><canvas id="cWB"></canvas></div>
+    </div>
+    <div class="card"><table><thead><tr><th>Monat</th><th>kWh</th><th>Vergütung</th></tr></thead><tbody id="tb-wb"></tbody></table></div>
+  </section>
+
+  <section class="view" id="v-kosten">
+    <div class="card">
+      <h2>Kosten vs. Einnahmen</h2>
+      <div class="desc">€ pro Jahr · Kosten positiv, Vergütungen negativ · Linie = Netto-Stromkosten</div>
+      <div class="chartbox tall"><canvas id="cCost"></canvas></div>
+    </div>
+    <div class="card">
+      <h2>Kennzahlen im Detail</h2>
+      <div class="desc" id="d-table"></div>
+      <div class="scroll"><table class="detail"><thead id="th-detail"></thead><tbody id="tb-detail"></tbody></table></div>
+    </div>
+    <div class="card notes"><b>Hinweise &amp; Quellen</b><ol id="notes"></ol></div>
+    <div class="card notes"><b>Einstellungen</b><p>Der Schlüssel ist auf diesem Gerät gespeichert, damit das Passwort nicht jedes Mal abgefragt wird.</p>
+      <button class="linkbtn" id="logout2">Abmelden / Passwort vergessen</button></div>
+  </section>
+</main>
+
+<nav class="tabbar" id="tabbar">
+  <button data-v="ueberblick"><span>🏠</span>Überblick</button>
+  <button data-v="verbrauch"><span>🔌</span>Verbrauch</button>
+  <button data-v="pv"><span>☀️</span>PV</button>
+  <button data-v="wp"><span>🌡️</span>Wärmep.</button>
+  <button data-v="wallbox"><span>🚗</span>Wallbox</button>
+  <button data-v="kosten"><span>💶</span>Kosten</button>
+</nav>
+<script src="app.js"></script>
+</body>
+</html>
