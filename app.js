@@ -267,7 +267,7 @@ function show(v) {
   document.querySelectorAll('.view').forEach(s => s.classList.toggle('active', s.id === 'v-' + v));
   document.querySelectorAll('#tabbar button').forEach(b => b.classList.toggle('active', b.dataset.v === v));
   buildCharts(v);
-  window.scrollTo(0, 0);
+  document.querySelector('main').scrollTop = 0;
   if (location.hash !== '#' + v) history.replaceState(null, '', '#' + v);
 }
 document.querySelectorAll('#tabbar button').forEach(b => b.addEventListener('click', () => show(b.dataset.v)));
