@@ -104,7 +104,7 @@ function render() {
   $('meta').innerHTML = `Stand ${fmtDate(D.stand)}<br>aktualisiert ${fmtTs(D.updated_at)}`;
   const estYears = D.years.filter((_, i) => est(i));
   $('notice').innerHTML = estYears.length
-    ? `<b>${estYears.join(', ')} = Teiljahr / Schätzung</b> (Stand ${fmtDate(D.stand)}). In Diagrammen und Tabellen mit <b>*</b> und hellerer/gestrichelter Darstellung gekennzeichnet.`
+    ? `<b>${estYears.join(', ')} = Teiljahr / Schätzung</b> (Stand ${fmtDate(D.stand)}). Mit <b>*</b> markiert, in Diagrammen heller/gestrichelt.`
     : `Alle Werte aus Jahresrechnungen (Stand ${fmtDate(D.stand)}).`;
   $('notice').hidden = false;
 
@@ -263,6 +263,7 @@ function buildCharts(v) { if (!D || built[v] || !builders[v]) return; built[v] =
 // ---------- Navigation ----------
 function show(v) {
   current = v;
+  document.body.classList.toggle('ov', v === 'ueberblick');
   document.querySelectorAll('.view').forEach(s => s.classList.toggle('active', s.id === 'v-' + v));
   document.querySelectorAll('#tabbar button').forEach(b => b.classList.toggle('active', b.dataset.v === v));
   buildCharts(v);

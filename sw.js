@@ -1,5 +1,5 @@
 // Service Worker: App-Shell aus dem Cache, data.enc.json immer zuerst aus dem Netz.
-const CACHE = 'strom-app-910b63e2be';
+const CACHE = 'strom-app-f863034289';
 const SHELL = ['./', 'index.html', 'app.css', 'app.js', 'vendor/chart.umd.min.js', 'manifest.json',
   'icons/apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png'];
 
